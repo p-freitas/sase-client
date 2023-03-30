@@ -4,8 +4,7 @@ import io from 'socket.io-client'
 import sound from '../../assets/notification.mp3'
 import * as S from './style'
 
-// const socket = io('http://192.168.1.2:8080', { transports: ['websocket'] })
-const socket = io(`${process.env.REACT_APP_SOCKET_URL}:${process.env.REACT_APP_SOCKET_PORT}`, { transports: ['websocket'] })
+const socket = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] })
 
 socket.on('connect', () => console.log('[SOCKET] [DISPLAY] => New Connection'))
 
@@ -13,10 +12,10 @@ const DisplayTerminal = () => {
   const [password, setPassword] = useState()
   const [PasswordOnDisplay, setPasswordOnDisplay] = useState()
   
-  socket.on('password.tv.update', data => {
+  socket.on('password.tv.update', (data, deleteFlag) => {
     setPassword(data)
     localStorage.setItem('currentPassword', data)
-    new Audio(sound).play({volume: 0.1});
+    !deleteFlag && new Audio(sound).play({volume: 0.1});
   })
 
   useEffect(() => {

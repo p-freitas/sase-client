@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Container from '../../components/Container/index'
 import Button from '../../components/Button/index'
 import io from 'socket.io-client'
-import { v4 as uuid } from 'uuid'
-
 import * as S from './styles'
 
-// const socket = io('https://sase-server.onrender.com', { transports: ['websocket'] })
-// const socket = io('http://192.168.1.2:8080', { transports: ['websocket'] })
-const socket = io(`${process.env.REACT_APP_SOCKET_URL}:${process.env.REACT_APP_SOCKET_PORT}`, { transports: ['websocket'] })
-
+const socket = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] })
 
 socket.on('connect', () => {
   console.log('[SOCKET] [SERVICE] => New Connection')
@@ -19,7 +14,6 @@ const ServiceTerminal = () => {
   const [PasswordList, setPasswordList] = useState()
   const [PasswordListOnDisplay, setPasswordListOnDisplay] = useState([])
   const [firstUse, setFirstUse] = useState(false)
-  const id = uuid()
 
   useEffect(() => {
     try {
@@ -39,19 +33,13 @@ const ServiceTerminal = () => {
         console.log(error)
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   socket.on('object.passwords', data => {
     setPasswordList(data)
   })
 
-  const [password, setPassword] = useState()
-
-  socket.on(`password.tv.${id}`, data => {
-    setPassword(data)
-  })
-
-  
 
   const handleNextPassword = el => {
     if (PasswordListOnDisplay === undefined) {

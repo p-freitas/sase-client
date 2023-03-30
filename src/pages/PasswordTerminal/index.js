@@ -4,9 +4,7 @@ import Container from '../../components/Container'
 import ButtonPT from '../../components/ButtonPT'
 import * as S from './styles'
 
-// const socket = io('https://sase-server.onrender.com', { transports: ['websocket'] })
-// const socket = io('http://192.168.1.2:8080', { transports: ['websocket'] })
-const socket = io(`${process.env.REACT_APP_SOCKET_URL}:${process.env.REACT_APP_SOCKET_PORT}`, { transports: ['websocket'] })
+const socket = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] })
 
 socket.on('connect', () => console.log('[SOCKET] [USER] => New Connection'))
 
