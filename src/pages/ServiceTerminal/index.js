@@ -80,7 +80,11 @@ const ServiceTerminal = () => {
   }
 
   const handleDeletePassword = el => {
+    console.log('entrou');
     socket.emit('passwords.delete', el)
+    socket.on('object.passwords', data => {
+      setPasswordList(data)
+    })
   }
 
   const handleDeletePasswordOnDisplay = el => {
