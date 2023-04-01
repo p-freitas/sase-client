@@ -8,13 +8,9 @@ export const RedButton = styled.button`
   color: var(--white);
   height: 100px;
   width: 200px;
-  background-color: var(--red-high);
+  background-color: ${({ color }) => (color)};
   transition: 0.5s;
   cursor: pointer;
   margin: 10px;
   font-size: 25px;
-
-  &:hover {
-    background-color: var(--red-strong);
-  }
 `

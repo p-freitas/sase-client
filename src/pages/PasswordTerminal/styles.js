@@ -19,7 +19,7 @@ export const CurrentPasswordContainer = styled.p`
 
 export const CurrentPassword = styled.p`
   font-size: 40px;
-  color: var(--red-high);
+  color: ${({ color }) => (color)};
   border: 1px solid;
   margin: 5px;
   padding: 5px;

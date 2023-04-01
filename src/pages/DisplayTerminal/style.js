@@ -9,7 +9,7 @@ export const Wrapper = styled.section`
 
 export const CurrentPassword = styled.p`
   font-size: 9em;
-  color: var(--red-high);
+  color: ${({ color }) => (color)};
   border: 1px solid;
   margin: 20px;
   padding: 10px;

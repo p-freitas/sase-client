@@ -4,18 +4,20 @@ import io from 'socket.io-client'
 import sound from '../../assets/notification.mp3'
 import * as S from './style'
 
-const socket = io(process.env.REACT_APP_SOCKET_URL, { transports: ['websocket'] })
+const socket = io(process.env.REACT_APP_SOCKET_URL, {
+  transports: ['websocket'],
+})
 
 socket.on('connect', () => console.log('[SOCKET] [DISPLAY] => New Connection'))
 
 const DisplayTerminal = () => {
   const [password, setPassword] = useState()
   const [PasswordOnDisplay, setPasswordOnDisplay] = useState()
-  
+
   socket.on('password.tv.update', (data, deleteFlag) => {
     setPassword(data)
     localStorage.setItem('currentPassword', data)
-    !deleteFlag && new Audio(sound).play({volume: 0.1});
+    !deleteFlag && new Audio(sound).play({ volume: 0.1 })
   })
 
   useEffect(() => {
@@ -37,10 +39,38 @@ const DisplayTerminal = () => {
         <S.CurrentPasswordContainer>
           {password
             ? password?.map(el => {
-                return <S.CurrentPassword>{el}</S.CurrentPassword>
+                console.log(el)
+
+                return (
+                  typeof el === 'string' && (
+                    <S.CurrentPassword
+                      color={
+                        el && el.includes('N')
+                          ? 'var(--green-high)'
+                          : 'var(--red-high)'
+                      }
+                    >
+                      {el}
+                    </S.CurrentPassword>
+                  )
+                )
               })
             : PasswordOnDisplay?.map(el => {
-                return <S.CurrentPassword>{el}</S.CurrentPassword>
+                console.log(el)
+
+                return (
+                  typeof el === 'string' && (
+                    <S.CurrentPassword
+                      color={
+                        el && el.includes('N')
+                          ? 'var(--green-high)'
+                          : 'var(--red-high)'
+                      }
+                    >
+                      {el}
+                    </S.CurrentPassword>
+                  )
+                )
               })}
         </S.CurrentPasswordContainer>
       </S.Wrapper>

@@ -8,6 +8,8 @@ const GlobalStyles = createGlobalStyle`
     --red-maroon: #3D0000;
     --red-strong: #950101;
     --red-high: #FF0000;
+    --green-high: #1edd01;
+    --green-strong: #117a01;
     // Spaces
     --space-lang: 1400px;
     --space-short: 700px;
