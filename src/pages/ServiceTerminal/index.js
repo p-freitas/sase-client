@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import Container from '../../components/Container/index'
-import Button from '../../components/Button/index'
 import io from 'socket.io-client'
 import { TrashIcon } from '../../assets/icons/TrashIcon'
 import ConfirmationModal from '../../components/ConfirmationModal'
+import EmptyModal from '../../components/EmptyModal'
+import Switch from 'react-switch'
+
 import * as S from './styles'
 
 const socket = io(process.env.REACT_APP_SOCKET_URL, {
@@ -19,12 +21,15 @@ const ServiceTerminal = () => {
   const [PasswordListOnDisplay, setPasswordListOnDisplay] = useState()
   const [firstUse, setFirstUse] = useState(false)
   const [OpenModal, setOpenModal] = useState(false)
+  const [OpenEmptyModal, setOpenEmptyModal] = useState(false)
   const [ModalFunction, setModalFunction] = useState()
   const [ModalPassword, setModalPassword] = useState()
   const [ModalMessage, setModalMessage] = useState()
   const [ModalSubText, setModalSubText] = useState()
-  const [ModalColor, setModalColor] = useState()
+  const [ModalType, setModalType] = useState()
+  const [SwitchCheck, setSwitchCheck] = useState(false)
 
+  const [password, setPassword] = useState()
   useEffect(() => {
     try {
       socket.emit('password.get')
@@ -50,37 +55,49 @@ const ServiceTerminal = () => {
     setPasswordList(data)
   })
 
-  const handleNextPassword = el => {
-    console.log(el)
-    if (PasswordListOnDisplay === undefined) {
-      setFirstUse(true)
+  socket.on(`password.tv.service`, data => {
+    setPassword(data)
+  })
+
+  const handleNextPassword = (el, isNextPassword) => {
+    if (isNextPassword) {
+      socket.emit('password.next', el, isNextPassword)
+
+      setOpenModal(false)
     } else {
-      setFirstUse(false)
+      if (PasswordListOnDisplay === undefined) {
+        setFirstUse(true)
+      } else {
+        setFirstUse(false)
+      }
+
+      if (firstUse) {
+        const newList = [...PasswordListOnDisplay, el]
+        setPasswordListOnDisplay(newList)
+
+        socket.emit('password.next', el, isNextPassword)
+        socket.emit('password.onDisplay', PasswordListOnDisplay)
+      }
+
+      if (
+        !PasswordListOnDisplay?.password?.includes(el?.password) &&
+        !firstUse
+      ) {
+        const newList = [...PasswordListOnDisplay, el]
+        var filter = newList.filter(e => e.length)
+        setPasswordListOnDisplay(filter)
+
+        socket.emit('password.next', el)
+        socket.emit('password.onDisplay', PasswordListOnDisplay)
+      }
+
+      setOpenModal(false)
     }
 
-    if (firstUse) {
-      const newList = [...PasswordListOnDisplay, el]
-      setPasswordListOnDisplay(newList)
-
-      socket.emit('password.next', el)
-      socket.emit('password.onDisplay', PasswordListOnDisplay)
-    }
-
-    if (!PasswordListOnDisplay?.includes(el) && !firstUse) {
-      const newList = [...PasswordListOnDisplay, el]
-      var filter = newList.filter(e => e.length)
-      setPasswordListOnDisplay(filter)
-
-      socket.emit('password.next', el)
-      socket.emit('password.onDisplay', PasswordListOnDisplay)
-    }
-
-    handleDeletePassword(el)
-    setOpenModal(false)
+    handleDeletePassword(el?.password)
   }
 
   const handleDeletePassword = el => {
-    console.log('entrou');
     socket.emit('passwords.delete', el)
     socket.on('object.passwords', data => {
       setPasswordList(data)
@@ -92,17 +109,21 @@ const ServiceTerminal = () => {
     setOpenModal(false)
   }
 
-  const handleOpenModal = (el, message, subText, func) => {
-    setOpenModal(true)
-    setModalMessage(message)
-    setModalSubText(subText)
-    setModalPassword(el)
-    setModalFunction(func)
-    setModalColor(el.includes('N') ? 'var(--green-high)' : 'var(--red-high)')
+  const handleOpenModal = (message, subText, func) => {
+    socket.emit('password.getEmpty')
+    socket.on('password.empty', data => {
+      if (data) {
+        setOpenEmptyModal(true)
+      } else {
+        setOpenModal(true)
+        setModalMessage(message)
+        setModalSubText(subText)
+        setModalFunction(func)
+      }
+    })
   }
 
   const handleResetPasswords = () => {
-    console.log('dasasdasdsa')
     socket.emit('passwords.reset')
     socket.emit('password.next', [])
     setPasswordListOnDisplay([])
@@ -110,51 +131,97 @@ const ServiceTerminal = () => {
     window.location.reload()
   }
 
+  const handleSwitchChange = () => {
+    setSwitchCheck(!SwitchCheck)
+  }
+
+  const handleListButtonClick = el => {
+    setModalPassword(el)
+    setModalType('add')
+    handleOpenModal(
+      'Deseja exibir essa senha na tv?',
+      '',
+      () => handleNextPassword
+    )
+  }
+
   return (
     <>
+      <S.SwitchButtonContainer>
+        <S.SwitchButtonText>
+          Ative para exibir a listagem das senhas
+        </S.SwitchButtonText>
+        <Switch
+          onChange={() => handleSwitchChange()}
+          checked={SwitchCheck}
+          uncheckedIcon={false}
+          checkedIcon={false}
+          width={40}
+          height={20}
+          handleDiameter={18}
+        />
+      </S.SwitchButtonContainer>
       <Container>
         <S.ServiceTerminalContainer>
-          <S.Wrapper>
-            <h1>Selecione as senhas que apareceram na TV: </h1>
-            <S.PasswordsContainer>
-              {PasswordList?.prioritary?.map(el => {
-                console.log('PasswordList:::', PasswordList)
-                return (
-                  <Button
-                    type='prioritary'
-                    onClick={() =>
-                      handleOpenModal(
-                        el,
-                        'Deseja exibir essa senha na tv?',
-                        '',
-                        () => handleNextPassword
-                      )
+          {SwitchCheck ? (
+            <S.WrapperList>
+              <h1>Selecione as senhas que apareceram na TV: </h1>
+              <S.PasswordsContainer>
+                {PasswordList?.prioritary?.map(el => {
+                  return (
+                    <S.ListPasswordButton
+                      type='prioritary'
+                      onClick={() => handleListButtonClick(el)}
+                    >
+                      {el}
+                    </S.ListPasswordButton>
+                  )
+                })}
+                {PasswordList?.normal?.map(el => {
+                  return (
+                    <S.ListPasswordButton
+                      type='normal'
+                      onClick={() => handleListButtonClick(el)}
+                    >
+                      {el}
+                    </S.ListPasswordButton>
+                  )
+                })}
+              </S.PasswordsContainer>
+            </S.WrapperList>
+          ) : (
+            <S.WrapperButton>
+              <h1>Pressione o botão para chamar a próxima senha: </h1>
+              {/* <Button onClick={() => handleNextPassword(undefined, true)}> */}
+              <S.NextPasswordButton
+                onClick={() => {
+                  setModalType('addButtonNext')
+                  handleOpenModal(
+                    'Deseja chamar a próxima senha?',
+                    '',
+                    () => handleNextPassword
+                  )
+                }}
+              >
+                Próxima senha
+              </S.NextPasswordButton>
+              {password && (
+                <>
+                  <h1>Você está atendendo a senha: </h1>
+                  <S.CurrentPassword
+                    color={
+                      password.includes('N')
+                        ? 'var(--green-high)'
+                        : 'var(--red-high)'
                     }
                   >
-                    {el}
-                  </Button>
-                )
-              })}
-              {PasswordList?.normal?.map(el => {
-                console.log('PasswordList:::', PasswordList)
-                return (
-                  <Button
-                    type='normal'
-                    onClick={() =>
-                      handleOpenModal(
-                        el,
-                        'Deseja exibir essa senha na tv?',
-                        '',
-                        () => handleNextPassword
-                      )
-                    }
-                  >
-                    {el}
-                  </Button>
-                )
-              })}
-            </S.PasswordsContainer>
-          </S.Wrapper>
+                    {password}
+                  </S.CurrentPassword>
+                </>
+              )}
+            </S.WrapperButton>
+          )}
+
           <S.WrapperOnDisplay>
             <S.OnDisplayContainer>
               <S.OnDisplayText>
@@ -165,28 +232,30 @@ const ServiceTerminal = () => {
                 <S.PasswordsContainer>
                   {PasswordListOnDisplay?.map(el => {
                     return (
-                      <S.CurrentPasswordContainer>
-                        <S.SvgContainer>
-                          <TrashIcon />
-                        </S.SvgContainer>
-                        <S.CurrentPassword
-                          color={
-                            el && el.includes('N')
-                              ? 'var(--green-high)'
-                              : 'var(--red-high)'
-                          }
-                          onClick={() =>
-                            handleOpenModal(
-                              el,
-                              'Deseja remover essa senha na tv?',
-                              '',
-                              () => handleDeletePasswordOnDisplay
-                            )
-                          }
-                        >
-                          {el}
-                        </S.CurrentPassword>
-                      </S.CurrentPasswordContainer>
+                      el.password !== undefined && (
+                        <S.CurrentPasswordContainer>
+                          <S.SvgContainer>
+                            <TrashIcon />
+                          </S.SvgContainer>
+                          <S.CurrentPassword
+                            color={
+                              el && el?.password?.includes('N')
+                                ? 'var(--green-high)'
+                                : 'var(--red-high)'
+                            }
+                            onClick={() =>
+                              handleOpenModal(
+                                el,
+                                'Deseja remover essa senha na tv?',
+                                '',
+                                () => handleDeletePasswordOnDisplay
+                              )
+                            }
+                          >
+                            {el?.password}
+                          </S.CurrentPassword>
+                        </S.CurrentPasswordContainer>
+                      )
                     )
                   })}
                 </S.PasswordsContainer>
@@ -195,14 +264,14 @@ const ServiceTerminal = () => {
             <S.ResetContainer>
               <p>(Clique para resetar todas as senhas)</p>
               <S.ResetButton
-                onClick={() =>
+                onClick={() => {
+                  setModalType('reset')
                   handleOpenModal(
-                    '',
-                    'Deseja resetar as senhas?',
-                    'Isso irá resetar todas as senhas geradas. Recomendado apenas resetar no final do dia',
+                    'Deseja apagar as senhas?',
+                    'Isso irá apagar todas as senhas geradas. Recomendado apenas apagar no final do dia',
                     () => handleResetPasswords
                   )
-                }
+                }}
               >
                 Resetar senhas
               </S.ResetButton>
@@ -217,8 +286,9 @@ const ServiceTerminal = () => {
         message={ModalMessage}
         modalFunction={ModalFunction}
         subText={ModalSubText}
-        modalColor={ModalColor}
+        type={ModalType}
       />
+      <EmptyModal open={OpenEmptyModal} setOpen={setOpenEmptyModal} />
     </>
   )
 }

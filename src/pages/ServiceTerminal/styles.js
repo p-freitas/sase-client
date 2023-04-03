@@ -1,6 +1,15 @@
 import styled from 'styled-components'
 
-export const Wrapper = styled.section`
+export const WrapperList = styled.section`
+  display: flex;
+  gap: 15px;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  overflow-y: auto;
+`
+
+export const WrapperButton = styled.section`
   display: flex;
   gap: 15px;
   flex-direction: column;
@@ -21,7 +30,7 @@ export const WrapperOnDisplay = styled.section`
 
 export const CurrentPassword = styled.p`
   font-size: 40px;
-  color: ${({ color }) => (color)};
+  color: ${({ color }) => color};
   border: 1px solid;
   margin: 5px;
   padding: 5px;
@@ -47,13 +56,19 @@ export const PasswordsContainer = styled.div`
   }
 `
 
+export const SwitchButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
 export const ServiceTerminalContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
   height: 100%;
   width: 100%;
-  padding-top: 40px;
+  padding-top: 20px;
 `
 
 export const OnDisplayContainer = styled.div`
@@ -114,5 +129,51 @@ export const ResetButton = styled.button`
   @media only screen and (max-width: 1200px) {
     width: 100px;
     font-size: 16px;
+  }
+`
+
+export const SwitchButtonText = styled.span`
+  color: white;
+`
+
+export const NextPasswordButton = styled.button`
+  border-radius: 5px;
+  text-transform: uppercase;
+
+  padding: 0 10px;
+  color: var(--white);
+  height: 60px;
+  width: 200px;
+  background-color: ${({ type }) =>
+    type === 'normal' ? 'var(--green-high)' : 'var(--red-high)'};
+  transition: 0.5s;
+  cursor: pointer;
+  margin: 20px;
+  font-size: 20px;
+
+  &:hover {
+    background-color: ${({ type }) =>
+      type === 'normal' ? 'var(--green-strong)' : 'var(--red-strong)'};
+  }
+`
+
+export const ListPasswordButton = styled.button`
+  border-radius: 5px;
+  text-transform: uppercase;
+
+  padding: 0 10px;
+  color: var(--white);
+  height: 50px;
+  width: 130px;
+  background-color: ${({ type }) =>
+    type === 'normal' ? 'var(--green-high)' : 'var(--red-high)'};
+  transition: 0.5s;
+  cursor: pointer;
+  margin: 20px;
+  font-size: 20px;
+
+  &:hover {
+    background-color: ${({ type }) =>
+      type === 'normal' ? 'var(--green-strong)' : 'var(--red-strong)'};
   }
 `

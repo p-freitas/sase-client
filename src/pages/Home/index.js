@@ -21,6 +21,9 @@ const Home = () => {
       <Button onClick={() => handleNavigate('/display')}>
         Display Terminal
       </Button>
+      <Button onClick={() => handleNavigate('/print')}>
+        Print
+      </Button>
     </Container>
   )
 }

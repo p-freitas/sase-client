@@ -67,6 +67,7 @@ export const ModalHeaderContent = styled.div`
   padding: 10px;
   align-items: center;
   align-content: center;
+  height: inherit;
 `
 
 export const ModalBodyContent = styled.div`
