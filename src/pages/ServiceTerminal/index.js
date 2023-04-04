@@ -143,8 +143,6 @@ const ServiceTerminal = () => {
     )
   }
 
-  console.log('PasswordList::', PasswordList)
-
   return (
     <>
       <Container>
@@ -165,6 +163,7 @@ const ServiceTerminal = () => {
         <S.ServiceTerminalContainer>
           {SwitchCheck ? (
             <S.WrapperList>
+              <h1>Pressione para chamar a senha: </h1>
               <S.PasswordsListContainer>
                 <Pagination
                   itemsPerPage={15}

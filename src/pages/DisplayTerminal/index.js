@@ -38,10 +38,20 @@ const DisplayTerminal = () => {
       socket.emit('password.onDisplay')
 
       socket.on('object.passwordsOnDisplay', data => {
-        data[data.length - 4] && setLastPassword(data[data.length - 4])
-        data[data.length - 3] && setSecondPassword(data[data.length - 3])
-        data[data.length - 2] && setThirdPassword(data[data.length - 2])
-        data[data.length - 1] && setCurrentPassword(data[data.length - 1])
+        console.log(data);
+
+        if (data.length > 0) {
+          data[data.length - 4] && setLastPassword(data[data.length - 4])
+          data[data.length - 3] && setSecondPassword(data[data.length - 3])
+          data[data.length - 2] && setThirdPassword(data[data.length - 2])
+          data[data.length - 1] && setCurrentPassword(data[data.length - 1])
+        } else {
+          setLastPassword(undefined)
+          setSecondPassword(undefined)
+          setThirdPassword(undefined)
+          setCurrentPassword(undefined)
+        }
+        
       })
     } catch (error) {
       console.log(error)

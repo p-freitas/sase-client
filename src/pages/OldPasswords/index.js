@@ -27,8 +27,6 @@ const OldPasswords = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  console.log('AllPasswordList::', AllPasswordList);
-
   return (
     <S.Container>
       <S.AllPasswordsTitle>Todas as senhas geradas do dia: </S.AllPasswordsTitle>

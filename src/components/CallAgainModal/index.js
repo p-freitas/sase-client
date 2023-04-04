@@ -32,7 +32,6 @@ const CallAgainModal = ({ open, setOpen, password, socket }) => {
             </S.ButtonCancel>
             <S.Button
               onClick={() => {
-                console.log('entrou');
                 socket.emit('password.callAgain', password)
                 setOpen(false)
               }}

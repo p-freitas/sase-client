@@ -171,8 +171,8 @@ export const ResetTextContainer = styled.div`
 `
 
 export const ResetInput = styled.input`
-  border: unset;
-  border-bottom: 1px solid;
-  font-size: 16px;
-  width: 70px;
+  border: 1px solid;
+  font-size: 18px;
+  width: 200px;
+  padding: 10px;
 `

@@ -28,7 +28,7 @@ const PaginationAllPasswords = ({ itemsPerPage, data, socket }) => {
       {data?.length > 0 ? (
         currentItems.map(item => (
           <S.ListPasswordButton
-            type='normal'
+          type={item?.includes('N') ? 'normal' : 'prioritary'}
             onClick={() => {
               setPasswordCallAgainModal(item)
               setOpenCallAgainModal(true)

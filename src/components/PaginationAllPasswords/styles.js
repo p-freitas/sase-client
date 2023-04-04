@@ -53,5 +53,9 @@ export const NoMorePasswordsText = styled.h1`
 `
 
 export const PaginationAllPasswordsContainer = styled.div`
-  width: 50%;
+  max-width: 700px;
+
+  h1 {
+    width: max-content;
+  }
 `

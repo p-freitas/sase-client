@@ -4,8 +4,6 @@ import * as S from './styles'
 const Pagination = ({ itemsPerPage, data, func }) => {
   const [currentPage, setCurrentPage] = useState(1)
 
-  console.log('data:::', data)
-
   const maxPage = Math.ceil(data?.all.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -24,14 +22,15 @@ const Pagination = ({ itemsPerPage, data, func }) => {
     <div>
       {data?.all?.length > 0 ? (
         currentItems.map(item => (
-          <S.ListPasswordButton type='normal' onClick={() => func(item)}>
+          <S.ListPasswordButton
+            type={item?.includes('N') ? 'normal' : 'prioritary'}
+            onClick={() => func(item)}
+          >
             {item}
           </S.ListPasswordButton>
         ))
       ) : (
-        <S.NoMorePasswordsText>
-          Não há senhas disponíveis
-        </S.NoMorePasswordsText>
+        <S.NoMorePasswordsText>Não há senhas disponíveis</S.NoMorePasswordsText>
       )}
 
       {data?.all?.length > 0 && (

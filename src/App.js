@@ -9,7 +9,6 @@ import Sidebar from './components/Sidebar'
 
 function App() {
   const location = useLocation()
-  console.log('location::', location)
   return (
     <div className="App" id="outer-container">
     {location.pathname !== '/password' && <Sidebar pageWrapId={'page-wrap'} outerContainerId={'outer-container'} />}

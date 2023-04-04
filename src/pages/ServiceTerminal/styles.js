@@ -61,7 +61,7 @@ export const PasswordsContainer = styled.div`
   margin-top: 20px;
 
   svg {
-    fill: var(--red-high);
+    fill: #0085ff;
     position: absolute;
     width: 17px;
     background-color: #f3f3f3;
