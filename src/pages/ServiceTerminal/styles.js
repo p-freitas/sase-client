@@ -7,6 +7,7 @@ export const WrapperList = styled.section`
   align-items: center;
   width: 80%;
   overflow-y: auto;
+  justify-content: center;
 `
 
 export const WrapperButton = styled.section`
@@ -16,6 +17,11 @@ export const WrapperButton = styled.section`
   align-items: center;
   width: 80%;
   overflow-y: auto;
+  justify-content: center;
+
+  h1 {
+    color: black;
+  }
 `
 
 export const WrapperOnDisplay = styled.section`
@@ -24,8 +30,9 @@ export const WrapperOnDisplay = styled.section`
   flex-direction: column;
   align-items: center;
   width: 20%;
-  border: 1px solid;
+  border: 1px solid black;
   overflow-y: auto;
+  height: 80%;
 `
 
 export const CurrentPassword = styled.p`
@@ -35,6 +42,15 @@ export const CurrentPassword = styled.p`
   margin: 5px;
   padding: 5px;
   cursor: pointer;
+`
+
+export const CurrentPasswordButtonNext = styled.p`
+  font-size: 40px;
+  color: ${({ color }) => color};
+  border: 1px solid;
+  margin: 5px;
+  padding: 5px;
+  width: fit-content;
 `
 
 export const PasswordsContainer = styled.div`
@@ -48,11 +64,12 @@ export const PasswordsContainer = styled.div`
     fill: var(--red-high);
     position: absolute;
     width: 17px;
-    background-color: white;
+    background-color: #f3f3f3;
     border-radius: 50px;
     height: 20px;
     cursor: pointer;
     display: none;
+    padding: 3px;
   }
 `
 
@@ -99,8 +116,8 @@ export const SvgContainer = styled.div`
 
 export const ResetContainer = styled.div`
   width: 100%;
-  height: 15%;
-  border: 1px solid;
+  height: 20%;
+  border: 1px solid black;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -133,7 +150,7 @@ export const ResetButton = styled.button`
 `
 
 export const SwitchButtonText = styled.span`
-  color: white;
+  color: black;
 `
 
 export const NextPasswordButton = styled.button`
@@ -176,4 +193,19 @@ export const ListPasswordButton = styled.button`
     background-color: ${({ type }) =>
       type === 'normal' ? 'var(--green-strong)' : 'var(--red-strong)'};
   }
+`
+
+export const PasswordsListContainer = styled.div`
+  text-align: center;
+  width: 50%;
+`
+
+export const CurrentPasswordAttending = styled.div`
+  text-align: -webkit-center;
+`
+
+export const NoMorePasswordsText = styled.h1`
+  margin: 50px;
+  border: 1px solid;
+  padding: 10px;
 `

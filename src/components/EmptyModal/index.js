@@ -7,7 +7,7 @@ const EmptyModal = ({ open, setOpen }) => {
       <S.Container data-testid='modal-testid'>
         <S.ModalContent>
           <S.ModalHeaderContent>
-            <S.TitleContainer>Não há mais senhas disponíveis</S.TitleContainer>
+            <S.TitleContainer>Não há senhas disponíveis</S.TitleContainer>
           </S.ModalHeaderContent>
 
           <S.ModalBodyContent>

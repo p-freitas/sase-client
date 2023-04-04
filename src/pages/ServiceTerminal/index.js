@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import Container from '../../components/Container/index'
 import io from 'socket.io-client'
-import { TrashIcon } from '../../assets/icons/TrashIcon'
+import { ReloadIcon } from '../../assets/icons/ReloadIcon'
 import ConfirmationModal from '../../components/ConfirmationModal'
 import EmptyModal from '../../components/EmptyModal'
+import CallAgainModal from '../../components/CallAgainModal'
+import ResetModal from '../../components/ResetModal'
 import Switch from 'react-switch'
 
 import * as S from './styles'
+import Pagination from '../../components/Pagination'
 
 const socket = io(process.env.REACT_APP_SOCKET_URL, {
   transports: ['websocket'],
@@ -22,6 +25,8 @@ const ServiceTerminal = () => {
   const [firstUse, setFirstUse] = useState(false)
   const [OpenModal, setOpenModal] = useState(false)
   const [OpenEmptyModal, setOpenEmptyModal] = useState(false)
+  const [OpenCallAgainModal, setOpenCallAgainModal] = useState(false)
+  const [OpenResetModal, setOpenResetModal] = useState(false)
   const [ModalFunction, setModalFunction] = useState()
   const [ModalPassword, setModalPassword] = useState()
   const [ModalMessage, setModalMessage] = useState()
@@ -30,6 +35,7 @@ const ServiceTerminal = () => {
   const [SwitchCheck, setSwitchCheck] = useState(false)
 
   const [password, setPassword] = useState()
+  const [PasswordCallAgainModal, setPasswordCallAgainModal] = useState()
   useEffect(() => {
     try {
       socket.emit('password.get')
@@ -61,7 +67,7 @@ const ServiceTerminal = () => {
 
   const handleNextPassword = (el, isNextPassword) => {
     if (isNextPassword) {
-      socket.emit('password.next', el, isNextPassword)
+      socket.emit('password.next', el, isNextPassword, false)
 
       setOpenModal(false)
     } else {
@@ -75,7 +81,7 @@ const ServiceTerminal = () => {
         const newList = [...PasswordListOnDisplay, el]
         setPasswordListOnDisplay(newList)
 
-        socket.emit('password.next', el, isNextPassword)
+        socket.emit('password.next', el, isNextPassword, false)
         socket.emit('password.onDisplay', PasswordListOnDisplay)
       }
 
@@ -104,15 +110,15 @@ const ServiceTerminal = () => {
     })
   }
 
-  const handleDeletePasswordOnDisplay = el => {
-    socket.emit('passwords.deleteOnDisplay', el)
-    setOpenModal(false)
-  }
+  // const handleDeletePasswordOnDisplay = el => {
+  //   socket.emit('passwords.deleteOnDisplay', el)
+  //   setOpenModal(false)
+  // }
 
   const handleOpenModal = (message, subText, func) => {
     socket.emit('password.getEmpty')
     socket.on('password.empty', data => {
-      if (data) {
+      if (data && ModalType !== 'again' && ModalType !== 'reset') {
         setOpenEmptyModal(true)
       } else {
         setOpenModal(true)
@@ -121,14 +127,6 @@ const ServiceTerminal = () => {
         setModalFunction(func)
       }
     })
-  }
-
-  const handleResetPasswords = () => {
-    socket.emit('passwords.reset')
-    socket.emit('password.next', [])
-    setPasswordListOnDisplay([])
-
-    window.location.reload()
   }
 
   const handleSwitchChange = () => {
@@ -145,49 +143,50 @@ const ServiceTerminal = () => {
     )
   }
 
+  console.log('PasswordList::', PasswordList)
+
   return (
     <>
-      <S.SwitchButtonContainer>
-        <S.SwitchButtonText>
-          Ative para exibir a listagem das senhas
-        </S.SwitchButtonText>
-        <Switch
-          onChange={() => handleSwitchChange()}
-          checked={SwitchCheck}
-          uncheckedIcon={false}
-          checkedIcon={false}
-          width={40}
-          height={20}
-          handleDiameter={18}
-        />
-      </S.SwitchButtonContainer>
       <Container>
+        <S.SwitchButtonContainer>
+          <S.SwitchButtonText>
+            Ative para exibir a listagem das senhas
+          </S.SwitchButtonText>
+          <Switch
+            onChange={() => handleSwitchChange()}
+            checked={SwitchCheck}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            width={40}
+            height={20}
+            handleDiameter={18}
+          />
+        </S.SwitchButtonContainer>
         <S.ServiceTerminalContainer>
           {SwitchCheck ? (
             <S.WrapperList>
-              <h1>Selecione as senhas que apareceram na TV: </h1>
-              <S.PasswordsContainer>
-                {PasswordList?.prioritary?.map(el => {
-                  return (
-                    <S.ListPasswordButton
-                      type='prioritary'
-                      onClick={() => handleListButtonClick(el)}
-                    >
-                      {el}
-                    </S.ListPasswordButton>
-                  )
-                })}
-                {PasswordList?.normal?.map(el => {
-                  return (
-                    <S.ListPasswordButton
-                      type='normal'
-                      onClick={() => handleListButtonClick(el)}
-                    >
-                      {el}
-                    </S.ListPasswordButton>
-                  )
-                })}
-              </S.PasswordsContainer>
+              <S.PasswordsListContainer>
+                <Pagination
+                  itemsPerPage={15}
+                  data={PasswordList}
+                  func={handleListButtonClick}
+                />
+              </S.PasswordsListContainer>
+
+              {password && (
+                <S.CurrentPasswordAttending>
+                  <h1>Você está atendendo a senha: </h1>
+                  <S.CurrentPasswordButtonNext
+                    color={
+                      password.includes('N')
+                        ? 'var(--green-high)'
+                        : 'var(--red-high)'
+                    }
+                  >
+                    {password}
+                  </S.CurrentPasswordButtonNext>
+                </S.CurrentPasswordAttending>
+              )}
             </S.WrapperList>
           ) : (
             <S.WrapperButton>
@@ -208,7 +207,7 @@ const ServiceTerminal = () => {
               {password && (
                 <>
                   <h1>Você está atendendo a senha: </h1>
-                  <S.CurrentPassword
+                  <S.CurrentPasswordButtonNext
                     color={
                       password.includes('N')
                         ? 'var(--green-high)'
@@ -216,7 +215,7 @@ const ServiceTerminal = () => {
                     }
                   >
                     {password}
-                  </S.CurrentPassword>
+                  </S.CurrentPasswordButtonNext>
                 </>
               )}
             </S.WrapperButton>
@@ -227,7 +226,7 @@ const ServiceTerminal = () => {
               <S.OnDisplayText>
                 Senhas que estão sendo exibidas na TV:{' '}
               </S.OnDisplayText>
-              <p>(Clique na senha para removê-la da TV)</p>
+              <p>(Clique na senha para chama-la novamente)</p>
               {PasswordListOnDisplay && PasswordListOnDisplay[0] !== [] && (
                 <S.PasswordsContainer>
                   {PasswordListOnDisplay?.map(el => {
@@ -235,7 +234,7 @@ const ServiceTerminal = () => {
                       el.password !== undefined && (
                         <S.CurrentPasswordContainer>
                           <S.SvgContainer>
-                            <TrashIcon />
+                            <ReloadIcon />
                           </S.SvgContainer>
                           <S.CurrentPassword
                             color={
@@ -243,14 +242,10 @@ const ServiceTerminal = () => {
                                 ? 'var(--green-high)'
                                 : 'var(--red-high)'
                             }
-                            onClick={() =>
-                              handleOpenModal(
-                                el,
-                                'Deseja remover essa senha na tv?',
-                                '',
-                                () => handleDeletePasswordOnDisplay
-                              )
-                            }
+                            onClick={() => {
+                              setPasswordCallAgainModal(el)
+                              setOpenCallAgainModal(true)
+                            }}
                           >
                             {el?.password}
                           </S.CurrentPassword>
@@ -265,12 +260,7 @@ const ServiceTerminal = () => {
               <p>(Clique para resetar todas as senhas)</p>
               <S.ResetButton
                 onClick={() => {
-                  setModalType('reset')
-                  handleOpenModal(
-                    'Deseja apagar as senhas?',
-                    'Isso irá apagar todas as senhas geradas. Recomendado apenas apagar no final do dia',
-                    () => handleResetPasswords
-                  )
+                  setOpenResetModal(true)
                 }}
               >
                 Resetar senhas
@@ -289,6 +279,17 @@ const ServiceTerminal = () => {
         type={ModalType}
       />
       <EmptyModal open={OpenEmptyModal} setOpen={setOpenEmptyModal} />
+      <CallAgainModal
+        open={OpenCallAgainModal}
+        setOpen={setOpenCallAgainModal}
+        password={PasswordCallAgainModal}
+        socket={socket}
+      />
+      <ResetModal
+        open={OpenResetModal}
+        setOpen={setOpenResetModal}
+        socket={socket}
+      />
     </>
   )
 }

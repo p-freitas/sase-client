@@ -14,7 +14,7 @@ const ConfirmationModal = ({
   const [SelectValue, setSelectValue] = useState()
   const [ResetText, setResetText] = useState()
   const options = [
-    { value: 'Guiche 01', label: 'Guiche 01' },
+    { value: 'Guichê 01', label: 'Guichê 01' },
     { value: 'Consultório 02', label: 'Consultório 02' },
     { value: 'Mesa 03', label: 'Mesa 03' },
   ]
@@ -22,13 +22,10 @@ const ConfirmationModal = ({
     setSelectValue(null)
     setResetText(undefined)
     if (type === 'addButtonNext') {
-      modalFunction({ select: SelectValue.value }, true)
+      modalFunction(SelectValue.value, true)
     }
     if (type === 'add') {
       modalFunction({ password: password, select: SelectValue.value }, false)
-    }
-    if (type === 'reset') {
-      modalFunction()
     }
   }
 
@@ -66,19 +63,6 @@ const ConfirmationModal = ({
             </>
           )}
 
-          {type === 'reset' && (
-            <>
-              <S.ResetTextContainer>
-                <S.SelectText>Digite abaixo a palavra</S.SelectText>
-                <S.SelectTextBold>{` apagar `}</S.SelectTextBold>
-                <S.SelectText>para apagar todas as senhas: </S.SelectText>
-              </S.ResetTextContainer>
-              <S.ResetInput
-                onChange={e => setResetText(e.target.value.toUpperCase())}
-              />
-            </>
-          )}
-
           <S.ModalBodyContent>
             <S.ButtonCancel
               onClick={() => {
@@ -93,7 +77,7 @@ const ConfirmationModal = ({
               onClick={() => handleConfirmClick()}
               disabled={
                 (SelectValue !== undefined && SelectValue !== null) ||
-                ResetText === 'APAGAR'
+                ResetText === 'APAGAR' || type === 'again'
                   ? false
                   : true
               }

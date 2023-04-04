@@ -20,8 +20,8 @@ const GlobalStyles = createGlobalStyle`
   }
   
   body{
-    background-color: #080808;
-    color: var(--white);
+    background-color: white;
+    color: black;
     font-family: var(--font-small);
     font-size: 0.95em;
   }

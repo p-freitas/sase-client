@@ -7,6 +7,9 @@ const Wrapper = styled.main`
   align-items: center;
   display: flex;
   justify-content: center;
+  background-color: white;
+  color: black;
+  flex-direction: column;
 `
 
 export default Wrapper
