@@ -7,9 +7,9 @@ import EmptyModal from '../../components/EmptyModal'
 import CallAgainModal from '../../components/CallAgainModal'
 import ResetModal from '../../components/ResetModal'
 import Switch from 'react-switch'
-
-import * as S from './styles'
+import { v4 as uuid } from 'uuid'
 import Pagination from '../../components/Pagination'
+import * as S from './styles'
 
 const socket = io(process.env.REACT_APP_SOCKET_URL, {
   transports: ['websocket'],
@@ -36,6 +36,7 @@ const ServiceTerminal = () => {
 
   const [password, setPassword] = useState()
   const [PasswordCallAgainModal, setPasswordCallAgainModal] = useState()
+  const id = uuid()
   useEffect(() => {
     try {
       socket.emit('password.get')
@@ -61,13 +62,18 @@ const ServiceTerminal = () => {
     setPasswordList(data)
   })
 
-  socket.on(`password.tv.service`, data => {
+  socket.on(`password.tv.service.${id}`, data => {
     setPassword(data)
+    localStorage.setItem('currentPassword', data)
+  })
+
+  socket.on(`passwords.reset`, () => {
+    localStorage.removeItem('currentPassword')
   })
 
   const handleNextPassword = (el, isNextPassword) => {
     if (isNextPassword) {
-      socket.emit('password.next', el, isNextPassword, false)
+      socket.emit('password.next', el, isNextPassword, id)
 
       setOpenModal(false)
     } else {
@@ -81,7 +87,7 @@ const ServiceTerminal = () => {
         const newList = [...PasswordListOnDisplay, el]
         setPasswordListOnDisplay(newList)
 
-        socket.emit('password.next', el, isNextPassword, false)
+        socket.emit('password.next', el, isNextPassword, id)
         socket.emit('password.onDisplay', PasswordListOnDisplay)
       }
 
@@ -93,7 +99,7 @@ const ServiceTerminal = () => {
         var filter = newList.filter(e => e.length)
         setPasswordListOnDisplay(filter)
 
-        socket.emit('password.next', el)
+        socket.emit('password.next', el, isNextPassword, id)
         socket.emit('password.onDisplay', PasswordListOnDisplay)
       }
 
@@ -116,8 +122,8 @@ const ServiceTerminal = () => {
   // }
 
   const handleOpenModal = (message, subText, func) => {
-    socket.emit('password.getEmpty')
-    socket.on('password.empty', data => {
+    socket.emit(`password.getEmpty`, id)
+    socket.on(`password.empty.${id}`, data => {
       if (data && ModalType !== 'again' && ModalType !== 'reset') {
         setOpenEmptyModal(true)
       } else {
@@ -141,6 +147,10 @@ const ServiceTerminal = () => {
       '',
       () => handleNextPassword
     )
+  }
+
+  const handleOpenEmptyModal = () => {
+    setOpenEmptyModal(true)
   }
 
   return (
@@ -203,20 +213,20 @@ const ServiceTerminal = () => {
               >
                 Próxima senha
               </S.NextPasswordButton>
-              {password && (
-                <>
-                  <h1>Você está atendendo a senha: </h1>
-                  <S.CurrentPasswordButtonNext
-                    color={
-                      password.includes('N')
-                        ? 'var(--green-high)'
-                        : 'var(--red-high)'
-                    }
-                  >
-                    {password}
-                  </S.CurrentPasswordButtonNext>
-                </>
-              )}
+              {localStorage.getItem('currentPassword') && localStorage.getItem('currentPassword') !== 'null' && (
+                  <>
+                    <h1>Você está atendendo a senha: </h1>
+                    <S.CurrentPasswordButtonNext
+                      color={
+                        localStorage.getItem('currentPassword').includes('N')
+                          ? 'var(--green-high)'
+                          : 'var(--red-high)'
+                      }
+                    >
+                      {localStorage.getItem('currentPassword')}
+                    </S.CurrentPasswordButtonNext>
+                  </>
+                )}
             </S.WrapperButton>
           )}
 
@@ -276,6 +286,8 @@ const ServiceTerminal = () => {
         modalFunction={ModalFunction}
         subText={ModalSubText}
         type={ModalType}
+        passwordList={PasswordList}
+        setOpenEmptyModal={handleOpenEmptyModal}
       />
       <EmptyModal open={OpenEmptyModal} setOpen={setOpenEmptyModal} />
       <CallAgainModal
@@ -283,6 +295,7 @@ const ServiceTerminal = () => {
         setOpen={setOpenCallAgainModal}
         password={PasswordCallAgainModal}
         socket={socket}
+        id={id}
       />
       <ResetModal
         open={OpenResetModal}

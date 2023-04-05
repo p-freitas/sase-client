@@ -38,6 +38,7 @@ const ResetModal = ({ open, setOpen, password, socket }) => {
             <S.Button
               disabled={ResetText !== 'APAGAR'}
               onClick={() => {
+                localStorage.removeItem('currentPassword')
                 socket.emit('passwords.reset')
                 socket.emit('password.next', [])
 

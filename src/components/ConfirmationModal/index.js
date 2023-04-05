@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import * as S from './styles'
 import Select from 'react-select'
 
@@ -10,6 +10,8 @@ const ConfirmationModal = ({
   password,
   modalFunction,
   type,
+  passwordList,
+  setOpenEmptyModal,
 }) => {
   const [SelectValue, setSelectValue] = useState()
   const [ResetText, setResetText] = useState()
@@ -27,7 +29,13 @@ const ConfirmationModal = ({
     if (type === 'add') {
       modalFunction({ password: password, select: SelectValue.value }, false)
     }
+    if (passwordList?.all.length === 0) {
+      console.log('entrou 2');
+      setOpenEmptyModal()
+    }
   }
+
+  
 
   if (open) {
     return (
@@ -76,10 +84,7 @@ const ConfirmationModal = ({
             <S.Button
               onClick={() => handleConfirmClick()}
               disabled={
-                (SelectValue !== undefined && SelectValue !== null) ||
-                ResetText === 'APAGAR' || type === 'again'
-                  ? false
-                  : true
+                SelectValue !== undefined && SelectValue !== null ? false : true
               }
             >
               Confirmar

@@ -1,7 +1,7 @@
 import React from 'react'
 import * as S from './styles'
 
-const CallAgainModal = ({ open, setOpen, password, socket }) => {
+const CallAgainModal = ({ open, setOpen, password, socket, id }) => {
   if (open) {
     return (
       <S.Container data-testid='modal-testid'>
@@ -32,7 +32,7 @@ const CallAgainModal = ({ open, setOpen, password, socket }) => {
             </S.ButtonCancel>
             <S.Button
               onClick={() => {
-                socket.emit('password.callAgain', password)
+                socket.emit('password.callAgain', password, id)
                 setOpen(false)
               }}
             >
