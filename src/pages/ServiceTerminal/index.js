@@ -9,6 +9,7 @@ import ResetModal from '../../components/ResetModal'
 import Switch from 'react-switch'
 import { v4 as uuid } from 'uuid'
 import Pagination from '../../components/Pagination'
+import Loading from '../../components/Loading'
 import * as S from './styles'
 
 const socket = io(process.env.REACT_APP_SOCKET_URL, {
@@ -33,11 +34,14 @@ const ServiceTerminal = () => {
   const [ModalSubText, setModalSubText] = useState()
   const [ModalType, setModalType] = useState()
   const [SwitchCheck, setSwitchCheck] = useState(false)
+  const [LoadingPasswordListOnDisplay, setLoadingPasswordListOnDisplay] =
+    useState(false)
 
-  const [password, setPassword] = useState()
+  // const [password, setPassword] = useState()
   const [PasswordCallAgainModal, setPasswordCallAgainModal] = useState()
   const id = uuid()
   useEffect(() => {
+    setLoadingPasswordListOnDisplay(true)
     try {
       socket.emit('password.get')
     } catch (error) {
@@ -50,6 +54,7 @@ const ServiceTerminal = () => {
 
         socket.on('object.passwordsOnDisplay', data => {
           if (data) setPasswordListOnDisplay(data)
+          setLoadingPasswordListOnDisplay(false)
         })
       } catch (error) {
         console.log(error)
@@ -63,7 +68,7 @@ const ServiceTerminal = () => {
   })
 
   socket.on(`password.tv.service.${id}`, data => {
-    setPassword(data)
+    // setPassword(data)
     localStorage.setItem('currentPassword', data)
   })
 
@@ -182,20 +187,21 @@ const ServiceTerminal = () => {
                 />
               </S.PasswordsListContainer>
 
-              {password && (
-                <S.CurrentPasswordAttending>
-                  <h1>Você está atendendo a senha: </h1>
-                  <S.CurrentPasswordButtonNext
-                    color={
-                      password.includes('N')
-                        ? 'var(--green-high)'
-                        : 'var(--red-high)'
-                    }
-                  >
-                    {password}
-                  </S.CurrentPasswordButtonNext>
-                </S.CurrentPasswordAttending>
-              )}
+              {localStorage.getItem('currentPassword') &&
+                localStorage.getItem('currentPassword') !== 'null' && (
+                  <S.CurrentPasswordAttending>
+                    <h1>Você está atendendo a senha: </h1>
+                    <S.CurrentPasswordButtonNext
+                      color={
+                        localStorage.getItem('currentPassword').includes('N')
+                          ? 'var(--green-high)'
+                          : 'var(--red-high)'
+                      }
+                    >
+                      {localStorage.getItem('currentPassword')}
+                    </S.CurrentPasswordButtonNext>
+                  </S.CurrentPasswordAttending>
+                )}
             </S.WrapperList>
           ) : (
             <S.WrapperButton>
@@ -213,7 +219,8 @@ const ServiceTerminal = () => {
               >
                 Próxima senha
               </S.NextPasswordButton>
-              {localStorage.getItem('currentPassword') && localStorage.getItem('currentPassword') !== 'null' && (
+              {localStorage.getItem('currentPassword') &&
+                localStorage.getItem('currentPassword') !== 'null' && (
                   <>
                     <h1>Você está atendendo a senha: </h1>
                     <S.CurrentPasswordButtonNext
@@ -236,34 +243,38 @@ const ServiceTerminal = () => {
                 Senhas que estão sendo exibidas na TV:{' '}
               </S.OnDisplayText>
               <p>(Clique na senha para chama-la novamente)</p>
-              {PasswordListOnDisplay && PasswordListOnDisplay[0] !== [] && (
-                <S.PasswordsContainer>
-                  {PasswordListOnDisplay?.map(el => {
-                    return (
-                      el.password !== undefined && (
-                        <S.CurrentPasswordContainer>
-                          <S.SvgContainer>
-                            <ReloadIcon />
-                          </S.SvgContainer>
-                          <S.CurrentPassword
-                            color={
-                              el && el?.password?.includes('N')
-                                ? 'var(--green-high)'
-                                : 'var(--red-high)'
-                            }
-                            onClick={() => {
-                              setPasswordCallAgainModal(el)
-                              setOpenCallAgainModal(true)
-                            }}
-                          >
-                            {el?.password}
-                          </S.CurrentPassword>
-                        </S.CurrentPasswordContainer>
+              {PasswordListOnDisplay &&
+                PasswordListOnDisplay[0] !== [] &&
+                (LoadingPasswordListOnDisplay ? (
+                  <Loading />
+                ) : (
+                  <S.PasswordsContainer>
+                    {PasswordListOnDisplay?.map(el => {
+                      return (
+                        el.password !== undefined && (
+                          <S.CurrentPasswordContainer>
+                            <S.SvgContainer>
+                              <ReloadIcon />
+                            </S.SvgContainer>
+                            <S.CurrentPassword
+                              color={
+                                el && el?.password?.includes('N')
+                                  ? 'var(--green-high)'
+                                  : 'var(--red-high)'
+                              }
+                              onClick={() => {
+                                setPasswordCallAgainModal(el)
+                                setOpenCallAgainModal(true)
+                              }}
+                            >
+                              {el?.password}
+                            </S.CurrentPassword>
+                          </S.CurrentPasswordContainer>
+                        )
                       )
-                    )
-                  })}
-                </S.PasswordsContainer>
-              )}
+                    })}
+                  </S.PasswordsContainer>
+                ))}
             </S.OnDisplayContainer>
             <S.ResetContainer>
               <p>(Clique para resetar todas as senhas)</p>
